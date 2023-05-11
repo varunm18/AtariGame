@@ -2,6 +2,7 @@ package com.example.atarigame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
     GameSurface gameSurface;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,23 +48,24 @@ public class MainActivity extends AppCompatActivity {
         Thread gameThread;
         SurfaceHolder holder;
         volatile boolean running = false;
-        Bitmap  ball;
+        Bitmap ball;
         Bitmap background;
         int ballX = 0;
         int ballY = 0;
+        int flip = 0;
         int x = 200;
         Paint paintProperty;
         int screenWidth;
         int screenHeight;
+        private SensorManager sensorManager;
+        private Sensor sensor;
 
         public GameSurface(Context context) {
             super(context);
             holder = getHolder();
             ball = BitmapFactory.decodeResource(getResources(), R.drawable.car);
             background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
-
-            ball.setWidth(50);
-            ball.setHeight(50);
+            ball = Bitmap.createScaledBitmap(ball, 200,330,/*filter=*/false);
             Display screenDisplay = getWindowManager().getDefaultDisplay();
             Point sizeOfScreen = new Point();
             screenDisplay.getSize(sizeOfScreen);
@@ -70,11 +73,14 @@ public class MainActivity extends AppCompatActivity {
             screenWidth = sizeOfScreen.x;
             screenHeight = sizeOfScreen.y;
             paintProperty = new Paint();
+
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         }
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            Log.d("x", sensorEvent.values[0]+" ");
+            flip = (int) (20 * sensorEvent.values[2]);
         }
 
         @Override
@@ -86,9 +92,11 @@ public class MainActivity extends AppCompatActivity {
             running = true;
             gameThread = new Thread(this);
             gameThread.start();
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
         public void pause(){
+            sensorManager.unregisterListener(this);
             running = false;
             while(true){
                 try{
@@ -104,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Canvas canvas = null;
             Drawable d = getResources().getDrawable(R.drawable.street, null);
-
-            int flip = 1;
             while(running){
                 if(holder.getSurface().isValid() == false)
                     continue;
@@ -113,9 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 d.setBounds(getLeft(), getTop(), getRight(), getBottom());
                 d.draw(canvas);
 
-                canvas.drawBitmap(ball, (screenWidth/2)-(ball.getWidth()/2)+ballX, (screenHeight/2)-ball.getHeight(), null);
-                if(ballX == screenWidth/2-ball.getWidth()/2 || ballX == -1*screenWidth/2+ball.getWidth()/2){
-                    flip*=-1;
+                canvas.drawBitmap(ball, (screenWidth/2)-(ball.getWidth()/2)+ballX, (screenHeight)-2*ball.getHeight(), null);
+                if(ballX >= screenWidth/2-ball.getWidth() && flip > 0) {
+                    flip = 0;
+                }
+                if(ballX <= -1*screenWidth/2+ball.getWidth() && flip < 0){
+                    flip = 0;
                 }
                 ballX += flip;
                 holder.unlockCanvasAndPost(canvas);
