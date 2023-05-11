@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
             ball = BitmapFactory.decodeResource(getResources(), R.drawable.car);
             background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
 
+            ball.setWidth(50);
+            ball.setHeight(50);
             Display screenDisplay = getWindowManager().getDefaultDisplay();
             Point sizeOfScreen = new Point();
             screenDisplay.getSize(sizeOfScreen);
