@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         Bitmap ball;
         Bitmap background;
         Bitmap bike;
-        float ballX = 0;
+        float ballX = 200f;
+        float ballY = 0;
         float bikeY = -200f;
         float bikeX = 200f;
         boolean alive = true;
@@ -123,27 +124,33 @@ public class MainActivity extends AppCompatActivity {
                 canvas = holder.lockCanvas(null);
                 d.setBounds(getLeft(), getTop(), getRight(), getBottom());
                 d.draw(canvas);
+                ballY = (screenHeight) - 2 * ball.getHeight();
 
                 if(alive) {
-                    canvas.drawBitmap(ball, (screenWidth / 2) - (ball.getWidth() / 2) + ballX, (screenHeight) - 2 * ball.getHeight(), null);
+                    canvas.drawBitmap(ball, ballX, ballY, null);
                 }
                 canvas.drawBitmap(bike,bikeX,bikeY,null);
-                if(ballX >= screenWidth/2-ball.getWidth() && flip > 0) {
+
+                if(ballX >= screenWidth-ball.getWidth() && flip > 0) {
                     flip = 0;
                 }
-                if(ballX <= -1*screenWidth/2+ball.getWidth() && flip < 0){
+                if(ballX <= -1*screenWidth+ball.getWidth() && flip < 0){
                     flip = 0;
                 }
                 ballX += flip;
+
                 if(bikeY > screenHeight)
                 {
                     bikeY = -10;
                     bikeX = (((int)(Math.random()*3) * 2 + 1)* (screenWidth / 6)) - (bike.getWidth() / 2);
                 }
- /*if()
- {
- alive = false;
- }*/
+
+                if((bikeY + bike.getHeight()) >= ballY && bikeY <= (ballY + ball.getHeight()))
+                {
+                    if((bikeX + bike.getWidth()) >= ballX && bikeX <= (ballX + ball.getWidth())) {
+                        alive = false;
+                    }
+                }
                 bikeY += 5;
                 holder.unlockCanvasAndPost(canvas);
             }
