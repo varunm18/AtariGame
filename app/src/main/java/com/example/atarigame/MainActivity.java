@@ -50,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
         volatile boolean running = false;
         Bitmap ball;
         Bitmap background;
-        int ballX = 0;
-        int ballY = 0;
+        Bitmap bike;
+        float ballX = 0;
+        float bikeY = -200f;
+        float bikeX = 200f;
+        boolean alive = true;
         int flip = 0;
         int x = 200;
         Paint paintProperty;
@@ -65,7 +68,9 @@ public class MainActivity extends AppCompatActivity {
             holder = getHolder();
             ball = BitmapFactory.decodeResource(getResources(), R.drawable.car);
             background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
+            bike = BitmapFactory.decodeResource(getResources(), R.drawable.bike);
             ball = Bitmap.createScaledBitmap(ball, 200,330,/*filter=*/false);
+            bike = Bitmap.createScaledBitmap(bike, 150,200,/*filter=*/false);
             Display screenDisplay = getWindowManager().getDefaultDisplay();
             Point sizeOfScreen = new Point();
             screenDisplay.getSize(sizeOfScreen);
@@ -80,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            flip = (int) (-20 * sensorEvent.values[2]);
-            Log.d("Sensor", ""+sensorEvent.values[2]);
+            flip = (int) (30 * sensorEvent.values[2]);
         }
 
         @Override
@@ -120,7 +124,10 @@ public class MainActivity extends AppCompatActivity {
                 d.setBounds(getLeft(), getTop(), getRight(), getBottom());
                 d.draw(canvas);
 
-                canvas.drawBitmap(ball, (screenWidth/2)-(ball.getWidth()/2)+ballX, (screenHeight)-2*ball.getHeight(), null);
+                if(alive) {
+                    canvas.drawBitmap(ball, (screenWidth / 2) - (ball.getWidth() / 2) + ballX, (screenHeight) - 2 * ball.getHeight(), null);
+                }
+                canvas.drawBitmap(bike,bikeX,bikeY,null);
                 if(ballX >= screenWidth/2-ball.getWidth() && flip > 0) {
                     flip = 0;
                 }
@@ -128,6 +135,16 @@ public class MainActivity extends AppCompatActivity {
                     flip = 0;
                 }
                 ballX += flip;
+                if(bikeY > screenHeight)
+                {
+                    bikeY = -10;
+                    bikeX = (((int)(Math.random()*3) * 2 + 1)* (screenWidth / 6)) - (bike.getWidth() / 2);
+                }
+ /*if()
+ {
+ alive = false;
+ }*/
+                bikeY += 5;
                 holder.unlockCanvasAndPost(canvas);
             }
         }
