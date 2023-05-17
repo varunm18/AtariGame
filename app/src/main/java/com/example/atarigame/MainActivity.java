@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            flip = (int) (20 * sensorEvent.values[2]);
+            flip = (int) (-20 * sensorEvent.values[2]);
+            Log.d("Sensor", ""+sensorEvent.values[2]);
         }
 
         @Override
