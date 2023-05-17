@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
         Bitmap ball;
         Bitmap background;
         Bitmap bike;
-        float ballX = 200f;
+        float ballX = 440f;
         float ballY = 0;
-        float bikeY = -200f;
-        float bikeX = 200f;
+        float bikeY = 10000f;
+        float bikeX = 0f;
         boolean alive = true;
         int flip = 0;
         int x = 200;
@@ -126,22 +126,24 @@ public class MainActivity extends AppCompatActivity {
                 d.draw(canvas);
                 ballY = (screenHeight) - 2 * ball.getHeight();
 
-                if(alive) {
-                    canvas.drawBitmap(ball, ballX, ballY, null);
-                }
-                canvas.drawBitmap(bike,bikeX,bikeY,null);
+                Log.d("here",""+screenWidth);
 
-                if(ballX >= screenWidth-ball.getWidth() && flip > 0) {
+                canvas.drawBitmap(ball, ballX, ballY, null);
+                if(alive) {
+                    canvas.drawBitmap(bike,bikeX,bikeY,null);
+                }
+
+                if(ballX >= screenWidth-ball.getWidth()-30 && flip > 0) {
                     flip = 0;
                 }
-                if(ballX <= -1*screenWidth+ball.getWidth() && flip < 0){
+                if(ballX <= 30 && flip < 0){
                     flip = 0;
                 }
                 ballX += flip;
 
                 if(bikeY > screenHeight)
                 {
-                    bikeY = -10;
+                    bikeY = -200;
                     bikeX = (((int)(Math.random()*3) * 2 + 1)* (screenWidth / 6)) - (bike.getWidth() / 2);
                 }
 
@@ -151,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         alive = false;
                     }
                 }
-                bikeY += 5;
+                bikeY += 10;
                 holder.unlockCanvasAndPost(canvas);
             }
         }
