@@ -52,10 +52,12 @@ public class MainActivity extends AppCompatActivity {
         Bitmap ball;
         Bitmap background;
         Bitmap bike;
+        Bitmap wreck;
         float ballX = 440f;
         float ballY = 0;
         float bikeY = 10000f;
         float bikeX = 0f;
+        float tempX, tempY;
         boolean alive = true;
         int flip = 0;
         int x = 200;
@@ -70,9 +72,11 @@ public class MainActivity extends AppCompatActivity {
             holder = getHolder();
             ball = BitmapFactory.decodeResource(getResources(), R.drawable.car);
             background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
+            wreck = BitmapFactory.decodeResource(getResources(), R.drawable.wreckage);
             bike = BitmapFactory.decodeResource(getResources(), R.drawable.bike);
             ball = Bitmap.createScaledBitmap(ball, 200,330,/*filter=*/false);
             bike = Bitmap.createScaledBitmap(bike, 150,200,/*filter=*/false);
+            wreck = Bitmap.createScaledBitmap(wreck, 150,200,/*filter=*/false);
             Display screenDisplay = getWindowManager().getDefaultDisplay();
             Point sizeOfScreen = new Point();
             screenDisplay.getSize(sizeOfScreen);
@@ -130,8 +134,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("here",""+screenWidth);
 
                 canvas.drawBitmap(ball, ballX, ballY, null);
+
                 if(alive) {
                     canvas.drawBitmap(bike,bikeX,bikeY,null);
+                } else {
+                    canvas.drawBitmap(wreck,tempX,tempY,null);
                 }
 
                 if(ballX >= screenWidth-ball.getWidth()-30 && flip > 0) {
@@ -146,12 +153,17 @@ public class MainActivity extends AppCompatActivity {
                 {
                     bikeY = -200;
                     bikeX = (((int)(Math.random()*3) * 2 + 1)* (screenWidth / 6)) - (bike.getWidth() / 2);
+                    alive = true;
                 }
 
                 if((bikeY + bike.getHeight()) >= ballY && bikeY <= (ballY + ball.getHeight()))
                 {
                     if((bikeX + bike.getWidth()) >= ballX && bikeX <= (ballX + ball.getWidth())) {
-                        alive = false;
+                        if(alive) {
+                            alive = false;
+                            tempX = bikeX;
+                            tempY = bikeY;
+                        }
                     }
                 }
                 bikeY += 10;
