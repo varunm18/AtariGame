@@ -30,7 +30,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     GameSurface gameSurface;
-    int counter = 5;
+    int counter = 30;
     int score = -1;
     TextView endText;
 
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         gameSurface = new GameSurface(this);
         setContentView(gameSurface);
-        new CountDownTimer(5000, 1000){
+        new CountDownTimer(30000, 1000){
             public void onTick(long millisUntilFinished){
                 counter--;
             }
