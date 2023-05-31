@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
@@ -29,6 +30,9 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     GameSurface gameSurface;
+    int counter = 5;
+    int score = -1;
+    TextView endText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,17 @@ public class MainActivity extends AppCompatActivity {
 
         gameSurface = new GameSurface(this);
         setContentView(gameSurface);
+        new CountDownTimer(5000, 1000){
+            public void onTick(long millisUntilFinished){
+                counter--;
+            }
+            public void onFinish(){
+                gameSurface.terminate();
+                setContentView(R.layout.activity_main);
+                endText = findViewById(R.id.textView);
+                endText.setText("The Game is Over!\nYour Final Score Is: "+score);
+            }
+        }.start();
     }
 
     @Override
@@ -67,12 +82,12 @@ public class MainActivity extends AppCompatActivity {
         boolean alive = true;
         int flip = 0;
         int x = 200;
-        Paint paintProperty;
+        Paint paintProperty, timePaint;
         int screenWidth;
         int screenHeight;
-        int score = -1;
         private SensorManager sensorManager;
         private Sensor sensor;
+        boolean end = false;
 
         public GameSurface(Context context) {
             super(context);
@@ -90,10 +105,14 @@ public class MainActivity extends AppCompatActivity {
 
             screenWidth = sizeOfScreen.x;
             screenHeight = sizeOfScreen.y;
+
             paintProperty = new Paint();
             paintProperty.setColor(Color.BLACK);
             paintProperty.setTextSize(80);
             paintProperty.setFakeBoldText(true);
+            timePaint = new Paint();
+            timePaint.setColor(Color.BLACK);
+            timePaint.setTextSize(50);
 
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
@@ -110,23 +129,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void resume(){
-            running = true;
-            gameThread = new Thread(this);
-            gameThread.start();
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            if(!end)
+            {
+                running = true;
+                gameThread = new Thread(this);
+                gameThread.start();
+                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            }
         }
 
         public void pause(){
-            sensorManager.unregisterListener(this);
-            running = false;
-            while(true){
-                try{
-                    gameThread.join();
-                }
-                catch(Exception e){
+            if(!end)
+            {
+                sensorManager.unregisterListener(this);
+                running = false;
+                while(true){
+                    try{
+                        gameThread.join();
+                    }
+                    catch(Exception e){
 
+                    }
                 }
             }
+        }
+
+        public void terminate(){
+            end = true;
+            sensorManager.unregisterListener(this);
+            running = false;
+            gameThread.interrupt();
         }
 
         @Override
@@ -182,7 +214,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 bikeY += 10;
-                canvas.drawText("Score: "+score, screenWidth/2-140, 160, paintProperty);
+                canvas.drawText("Score: "+score, screenWidth/2-140, 140, paintProperty);
+                canvas.drawText("Time Left: "+counter, screenWidth/2-140, 220, timePaint);
                 holder.unlockCanvasAndPost(canvas);
             }
         }
