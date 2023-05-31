@@ -1,7 +1,10 @@
 package com.example.atarigame;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.content.Context;
@@ -19,8 +22,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     GameSurface gameSurface;
@@ -29,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         gameSurface = new GameSurface(this);
         setContentView(gameSurface);
     }
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         Paint paintProperty;
         int screenWidth;
         int screenHeight;
+        int score = -1;
         private SensorManager sensorManager;
         private Sensor sensor;
 
@@ -84,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
             screenWidth = sizeOfScreen.x;
             screenHeight = sizeOfScreen.y;
             paintProperty = new Paint();
+            paintProperty.setColor(Color.BLACK);
+            paintProperty.setTextSize(80);
+            paintProperty.setFakeBoldText(true);
 
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
@@ -153,6 +163,10 @@ public class MainActivity extends AppCompatActivity {
                 {
                     bikeY = -200;
                     bikeX = (((int)(Math.random()*3) * 2 + 1)* (screenWidth / 6)) - (bike.getWidth() / 2);
+                    if(alive)
+                    {
+                        score++;
+                    }
                     alive = true;
                 }
 
@@ -163,10 +177,12 @@ public class MainActivity extends AppCompatActivity {
                             alive = false;
                             tempX = bikeX;
                             tempY = bikeY;
+                            score--;
                         }
                     }
                 }
                 bikeY += 10;
+                canvas.drawText("Score: "+score, screenWidth/2-140, 160, paintProperty);
                 holder.unlockCanvasAndPost(canvas);
             }
         }
