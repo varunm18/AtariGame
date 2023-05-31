@@ -6,6 +6,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.graphics.Color;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     int counter = 30;
     int score = -1;
     TextView endText;
+    MediaPlayer mediaPlayer, media2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +43,14 @@ public class MainActivity extends AppCompatActivity {
 
         gameSurface = new GameSurface(this);
         setContentView(gameSurface);
+
         new CountDownTimer(30000, 1000){
             public void onTick(long millisUntilFinished){
                 counter--;
             }
             public void onFinish(){
                 gameSurface.terminate();
+                gameSurface = null;
                 setContentView(R.layout.activity_main);
                 endText = findViewById(R.id.textView);
                 endText.setText("The Game is Over!\nYour Final Score Is: "+score);
@@ -64,6 +68,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         gameSurface.resume();
+        mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.background);
+        mediaPlayer.start();
+        media2 = MediaPlayer.create(MainActivity.this, R.raw.punch);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mediaPlayer.reset();
+        mediaPlayer.release();
+        mediaPlayer = null;
+        media2.reset();
+        media2.release();
+        media2 = null;
     }
 
     public class GameSurface extends SurfaceView implements Runnable, SensorEventListener{
@@ -210,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                             tempX = bikeX;
                             tempY = bikeY;
                             score--;
+                            media2.start();
                         }
                     }
                 }
